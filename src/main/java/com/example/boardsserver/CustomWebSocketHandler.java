@@ -1,6 +1,7 @@
 package com.example.boardsserver;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -9,6 +10,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class CustomWebSocketHandler extends TextWebSocketHandler {
     private final SimpMessagingTemplate messagingTemplate;
     private final List<WebSocketSession> sessions = new ArrayList<>();
@@ -20,6 +22,7 @@ public class CustomWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         sessions.add(session);
+        System.out.println("Client is connected");
     }
 
     @Override
@@ -39,6 +42,7 @@ public class CustomWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         sessions.remove(session);
+        System.out.println("Connection is closed");
     }
 
     @Override

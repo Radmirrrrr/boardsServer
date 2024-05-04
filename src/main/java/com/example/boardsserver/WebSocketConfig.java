@@ -16,11 +16,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    @Bean
-    public CustomWebSocketHandler customWebSocketHandler(SimpMessagingTemplate messagingTemplate) {
-        return new CustomWebSocketHandler(messagingTemplate);
-    }
-
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/websocket");
