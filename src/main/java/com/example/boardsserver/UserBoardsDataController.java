@@ -14,7 +14,7 @@ import java.util.Base64;
 @RequestMapping("/user/boards")
 public class UserBoardsDataController {
     private static final String BOARDS_FILE_PATH = "./data/boards.ser"; // Путь к файлу с данными досок
-    private File boardsDataFile = new File(BOARDS_FILE_PATH);
+    private final File boardsDataFile = new File(BOARDS_FILE_PATH);
 
     @PostMapping("/receive-boards-data")
     public ResponseEntity<String> receiveBoardsData(@RequestBody BoardsData boardsData) {
