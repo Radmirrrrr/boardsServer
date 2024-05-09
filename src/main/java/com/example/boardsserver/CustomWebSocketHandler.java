@@ -2,22 +2,16 @@ package com.example.boardsserver;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
+import org.springframework.web.socket.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class CustomWebSocketHandler extends TextWebSocketHandler {
-    private final SimpMessagingTemplate messagingTemplate;
+public class CustomWebSocketHandler implements WebSocketHandler {
+
     private final List<WebSocketSession> sessions = new ArrayList<>();
 
-    public CustomWebSocketHandler(SimpMessagingTemplate messagingTemplate) {
-        this.messagingTemplate = messagingTemplate;
-    }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -26,12 +20,9 @@ public class CustomWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        String receivedMessage = message.getPayload();
+    public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
+        String receivedMessage = (String) message.getPayload();
         System.out.println("Received message from client: " + receivedMessage);
-
-        // Отправляем обратно клиенту сообщение о успешном подключении
-        messagingTemplate.convertAndSend("/topic/greetings", "привет от сервера");
     }
 
     @Override

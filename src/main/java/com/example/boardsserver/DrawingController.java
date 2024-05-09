@@ -2,13 +2,17 @@ package com.example.boardsserver;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.common.AddPointMessage;
+import org.common.BoardsData;
 import org.common.Line;
 import org.common.SendingLineStart;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
-import java.io.IOException;
+import java.io.*;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +21,11 @@ import java.util.Map;
 public class DrawingController {
 
     private Map<String, Line> linesMap = new HashMap<>();
-
     private ObjectMapper objectMapper = new ObjectMapper();
+    private String LINES_FILE_PATH;
+    private File linesDataFile;
+
+
 
     @MessageMapping("/draw")
     @SendTo("/topic/draw")
@@ -47,7 +54,7 @@ public class DrawingController {
     }
 
     @MessageMapping("/addPoint")
-    @SendTo("/topic/line")
+    @SendTo("/topic/addPoint")
     public void handleAddPointMessage(byte[] messageBytes) throws IOException {
         try {
             AddPointMessage addPointMessage = objectMapper.readValue(messageBytes, AddPointMessage.class);
@@ -61,5 +68,38 @@ public class DrawingController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @MessageMapping("/saveLines")
+    public void saveLinesData2File() {
+        int boardId = BoardId.getBoardId();
+
+        LINES_FILE_PATH = "./data/board_" + boardId + ".ser";
+        if (linesDataFile == null) {
+            linesDataFile = new File(LINES_FILE_PATH);
+        }
+
+        try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(linesDataFile))) {
+            outputStream.writeObject(linesMap);
+            System.out.println("Lines data saved to file: " + linesDataFile.getAbsolutePath());
+        } catch (IOException e) {
+            System.err.println("Failed to save lines data to file: " + e.getMessage());
+        }
+    }
+
+    @MessageMapping("/loadLines")
+    @SendTo("/topic/loadLines")
+    public String loadLinesFromFile() {
+        System.out.println("Request received, sending lines: " + linesMap);
+        return "Text message";
+    }
+
+    private String serializeLinesDataToString(Map<String, Line> linesMap) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
+            objectOutputStream.writeObject(linesMap);
+            objectOutputStream.flush();
+        }
+        return Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
     }
 }

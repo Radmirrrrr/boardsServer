@@ -15,12 +15,18 @@ import java.util.Base64;
 public class UserBoardsDataController {
     private static final String BOARDS_FILE_PATH = "./data/boards.ser"; // Путь к файлу с данными досок
     private final File boardsDataFile = new File(BOARDS_FILE_PATH);
+    private static int currentNumberOfBoard = 0;
+
+    public static int getCurrentNumberOfBoard() {
+        return currentNumberOfBoard;
+    }
 
     @PostMapping("/receive-boards-data")
     public ResponseEntity<String> receiveBoardsData(@RequestBody BoardsData boardsData) {
         try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(BOARDS_FILE_PATH))) {
             // Записываем объект boardsData в файл
             outputStream.writeObject(boardsData);
+            currentNumberOfBoard = boardsData.getCurrentNumberOfBoard();
             System.out.println("Received boards data saved to file: " + BOARDS_FILE_PATH);
             return new ResponseEntity<>("Boards data received and saved successfully.", HttpStatus.OK);
         } catch (IOException e) {
