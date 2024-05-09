@@ -4,8 +4,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
+import org.springframework.messaging.converter.StringMessageConverter;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -39,8 +40,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
-        messageConverters.add(new MappingJackson2MessageConverter()); // Добавляет поддержку JSON
-        WebSocketMessageBrokerConfigurer.super.configureMessageConverters(messageConverters);
-        return false;
+        // Добавляем кастомные конвертеры
+        messageConverters.add(new StringMessageConverter());
+        messageConverters.add(new MappingJackson2MessageConverter());
+
+        // Возвращаем true для добавления стандартных конвертеров после кастомных
+        return true;
     }
 }
