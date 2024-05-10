@@ -1,18 +1,14 @@
 package com.example.boardsserver;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.common.AddPointMessage;
 import org.common.BoardsData;
 import org.common.Line;
 import org.common.SendingLineStart;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
 import java.io.*;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,9 +56,7 @@ public class DrawingController {
         int boardId = BoardId.getBoardId();
 
         LINES_FILE_PATH = "./data/board_" + boardId + ".ser";
-        if (linesDataFile == null) {
-            linesDataFile = new File(LINES_FILE_PATH);
-        }
+        linesDataFile = new File(LINES_FILE_PATH);
 
         try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(linesDataFile))) {
             outputStream.writeObject(linesMap);
@@ -70,12 +64,28 @@ public class DrawingController {
         } catch (IOException e) {
             System.err.println("Failed to save lines data to file: " + e.getMessage());
         }
+
+        linesMap.clear();
     }
 
     @MessageMapping("/loadLines")
     @SendTo("/topic/loadLines")
     public Map<String, Line> loadLinesFromFile() {
-        System.out.println("Request received, sending lines: " + linesMap);
-        return linesMap;
+
+        int boardId = BoardId.getBoardId();
+        LINES_FILE_PATH = "./data/board_" + boardId + ".ser";
+        linesDataFile = new File(LINES_FILE_PATH);
+
+        if (linesDataFile.exists()) {
+            try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(linesDataFile))) {
+                linesMap = (Map<String, Line>) inputStream.readObject();
+                System.out.println("Request received, sending lines: " + linesMap);
+                return linesMap;
+            } catch (IOException | ClassNotFoundException e) {
+                System.err.println("Failed to load lines data from file: " + e.getMessage());
+                return null;
+            }
+        }
+        return null;
     }
 }
