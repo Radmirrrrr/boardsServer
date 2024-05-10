@@ -40,6 +40,7 @@ public class DrawingController {
         line.setRed(sendingLineStart.getRed());
         line.setGreen(sendingLineStart.getGreen());
         line.setBlue(sendingLineStart.getBlue());
+        line.setOpacity(sendingLineStart.getOpacity());
     }
 
     @MessageMapping("/addPoint")
