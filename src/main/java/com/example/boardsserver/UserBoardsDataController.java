@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.common.BoardsData;
 import org.common.Board;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.util.Base64;
